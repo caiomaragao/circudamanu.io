@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>O Maravilhoso Parque Digital</title>
+  <meta
+    name="description"
+    content="Um pequeno universo interativo inspirado na estética retrô e lúdica do Circo Digital."
+  />
+
+  <!-- Fontes alegres e legíveis (com ótimos fallbacks caso esteja offline) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@500;600;700;800&family=Space+Mono:wght@700&display=swap"
+    rel="stylesheet"
+  />
+
+  <link rel="stylesheet" href="css/estilos.css" />
+</head>
+<body data-sala="lobby">
+  <!-- Fundo animado 90s CGI único para cada sala -->
+  <canvas id="canvas-cenario" aria-hidden="true"></canvas>
+
+  <!-- Camada de confetes do brinquedo surpresa -->
+  <canvas id="canvas-confete" aria-hidden="true"></canvas>
+
+  <!-- Cortina / Íris mágica de transição ao entrar em uma porta -->
+  <div id="transicao-porta" class="transicao-porta" aria-hidden="true">
+    <div class="transicao-disco">
+      <span class="transicao-estrela">★</span>
+      <span id="transicao-rotulo" class="transicao-rotulo">Abrindo porta...</span>
+    </div>
+  </div>
+
+  <!-- Barra superior fixa estilo CD-ROM retrô colorido -->
+  <header id="barra-parque" class="barra-parque">
+    <div class="barra-interna">
+      <button
+        type="button"
+        class="marca-btn"
+        data-ir-sala="lobby"
+        aria-label="Voltar para o Corredor das Portas"
+      >
+        <span class="marca-emblema" aria-hidden="true">★</span>
+        <span id="marca-nome" class="marca-nome">Parque Digital</span>
+      </button>
+
+      <nav class="nav-salas" aria-label="Mapa das salas">
+        <button type="button" class="nav-pilula ativo" data-ir-sala="lobby">
+          <span class="nav-num">⌂</span>
+          <span class="nav-texto">Portas</span>
+        </button>
+        <button type="button" class="nav-pilula" data-ir-sala="boas-vindas">
+          <span class="nav-num">01</span>
+          <span class="nav-texto">Tenda</span>
+        </button>
+        <button type="button" class="nav-pilula" data-ir-sala="experiencia">
+          <span class="nav-num">02</span>
+          <span class="nav-texto">Experiência</span>
+        </button>
+        <button type="button" class="nav-pilula" data-ir-sala="vitrine">
+          <span class="nav-num">03</span>
+          <span class="nav-texto">Vitrine</span>
+        </button>
+      </nav>
+
+      <div class="barra-acoes">
+        <button
+          type="button"
+          id="btn-confete"
+          class="btn-brinquedo btn-confete"
+          title="Soltar confetes mágicos!"
+          aria-label="Soltar confetes mágicos"
+        >
+          <span aria-hidden="true">🎉</span>
+          <span class="btn-label-desktop">Surpresa</span>
+        </button>
+
+        <button
+          type="button"
+          id="btn-som"
+          class="btn-brinquedo btn-som"
+          aria-pressed="false"
+          title="Ativar ou desativar som retrô"
+        >
+          <span id="icone-som" aria-hidden="true">🔇</span>
+          <span id="texto-som" class="btn-label-desktop">Som: OFF</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Palco principal onde cada sala aparece como um cenário independente -->
+  <main id="palco-salas" class="palco-salas">
+    <!-- ====================================================================
+         LOBBY: CORREDOR DAS PORTAS
+         ==================================================================== -->
+    <section id="sala-lobby" class="sala sala-lobby ativa" aria-label="Corredor das Portas">
+      <div class="toldo-circo" aria-hidden="true"></div>
+
+      <div class="container-sala lobby-container">
+        <div class="placa-boas-vindas">
+          <span id="lobby-etiqueta" class="selo-retro">EDIÇÃO INTERATIVA • CD-ROM 1996</span>
+          <h1 id="lobby-titulo" class="titulo-principal">Bem-vindo ao Grande Espetáculo!</h1>
+          <p id="lobby-subtitulo" class="subtitulo-lobby">
+            Escolha uma porta para explorar cada sala deste pequeno universo
+          </p>
+        </div>
+
+        <!-- As 3 portas interativas em 3D (renderizadas dinamicamente a partir de conteudo.js) -->
+        <div id="corredor-portas" class="corredor-portas" role="list"></div>
+
+        <footer class="rodape-lobby">
+          <span class="dica-interativa">💡 Dica: clique em qualquer porta para entrar ou teste o botão 🎉 lá em cima!</span>
+          <p id="rodape-texto" class="rodape-texto"></p>
+        </footer>
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         SALA 01: A GRANDE TENDA (BOAS-VINDAS & APRESENTAÇÃO)
+         ==================================================================== -->
+    <section id="sala-boas-vindas" class="sala sala-tenda" aria-label="Sala 01: Boas-vindas" hidden>
+      <div class="toldo-circo toldo-vermelho" aria-hidden="true"></div>
+
+      <div class="container-sala">
+        <div class="cabecalho-sala">
+          <button type="button" class="btn-voltar-corredor" data-ir-sala="lobby">
+            ← Voltar às Portas
+          </button>
+          <span id="bv-selo" class="selo-retro selo-vermelho">SALA 01 • A GRANDE TENDA</span>
+        </div>
+
+        <article class="janela-cdrom janela-tenda">
+          <div class="janela-barra-topo">
+            <div class="janela-bolinhas" aria-hidden="true">
+              <span class="bolinha b-vermelha"></span>
+              <span class="bolinha b-amarela"></span>
+              <span class="bolinha b-azul"></span>
+            </div>
+            <span class="janela-titulo-os">CARTAO_DE_VISITANTE.EXE</span>
+            <span class="janela-estrela-os" aria-hidden="true">★</span>
+          </div>
+
+          <div class="tenda-grid">
+            <!-- Coluna do retrato / medalhão -->
+            <div class="tenda-retrato-col">
+              <div class="moldura-medalhao">
+                <div id="bv-foto-wrap" class="foto-perfil-wrap"></div>
+                <span class="pino-estrela pino-tl" aria-hidden="true">★</span>
+                <span class="pino-estrela pino-tr" aria-hidden="true">★</span>
+                <span class="pino-estrela pino-bl" aria-hidden="true">★</span>
+                <span class="pino-estrela pino-br" aria-hidden="true">★</span>
+              </div>
+              <p id="bv-legenda-foto" class="legenda-medalhao"></p>
+            </div>
+
+            <!-- Coluna da apresentação -->
+            <div class="tenda-texto-col">
+              <p id="bv-saudacao" class="bv-saudacao"></p>
+              <h1 id="bv-nome" class="bv-nome"></h1>
+              <p id="bv-subtitulo" class="bv-subtitulo"></p>
+
+              <div id="bv-paragrafos" class="bv-paragrafos"></div>
+
+              <blockquote id="bv-frase" class="frase-destaque"></blockquote>
+
+              <div id="bv-redes" class="redes-wrap"></div>
+            </div>
+          </div>
+
+          <!-- Ficha rápida / curiosidades coloridas -->
+          <div class="ficha-secao">
+            <h2 class="subtitulo-bloco">✦ Ficha do Parque</h2>
+            <div id="bv-ficha" class="ficha-grid"></div>
+          </div>
+        </article>
+
+        <div class="navegacao-inferior-sala">
+          <button type="button" class="btn-acao-primario" data-ir-sala="experiencia" id="bv-btn-proxima">
+            Seguir para a Sala 02 →
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         SALA 02: OS TERRENOS & LAGO DIGITAL (A EXPERIÊNCIA + IMAGENS)
+         ==================================================================== -->
+    <section id="sala-experiencia" class="sala sala-experiencia" aria-label="Sala 02: A Experiência" hidden>
+      <div class="container-sala">
+        <div class="cabecalho-sala">
+          <button type="button" class="btn-voltar-corredor" data-ir-sala="lobby">
+            ← Voltar às Portas
+          </button>
+          <span id="exp-selo" class="selo-retro selo-azul">SALA 02 • OS TERRENOS</span>
+        </div>
+
+        <div class="banner-sala banner-azul">
+          <h1 id="exp-titulo" class="titulo-sala"></h1>
+          <p id="exp-intro" class="intro-sala"></p>
+        </div>
+
+        <!-- Capítulos da experiência com texto + foto emoldurada clicável -->
+        <div id="exp-capitulos" class="capitulos-lista"></div>
+
+        <!-- Resumo final da aventura -->
+        <aside class="caixa-resumo-aventura">
+          <div class="resumo-icone" aria-hidden="true">☀</div>
+          <div class="resumo-conteudo">
+            <h2 id="exp-resumo-titulo" class="resumo-titulo"></h2>
+            <ul id="exp-resumo-itens" class="resumo-lista"></ul>
+          </div>
+        </aside>
+
+        <div class="navegacao-inferior-sala">
+          <button type="button" class="btn-acao-secundario" data-ir-sala="boas-vindas">
+            ← Sala 01: A Tenda
+          </button>
+          <button type="button" class="btn-acao-primario" data-ir-sala="vitrine" id="exp-btn-proxima">
+            Abrir a Sala 03: A Vitrine →
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         SALA 03: PAVILHÃO DAS ESTRELAS (VITRINE DE IMAGENS E VÍDEOS)
+         ==================================================================== -->
+    <section id="sala-vitrine" class="sala sala-vitrine" aria-label="Sala 03: Vitrine de Imagens e Vídeos" hidden>
+      <div class="container-sala">
+        <div class="cabecalho-sala">
+          <button type="button" class="btn-voltar-corredor" data-ir-sala="lobby">
+            ← Voltar às Portas
+          </button>
+          <span id="vit-selo" class="selo-retro selo-roxo">SALA 03 • A VITRINE</span>
+        </div>
+
+        <div class="banner-sala banner-roxo">
+          <h1 id="vit-titulo" class="titulo-sala"></h1>
+          <p id="vit-intro" class="intro-sala"></p>
+
+          <!-- Filtros táteis estilo botões de brinquedo -->
+          <div class="filtros-vitrine" role="tablist" aria-label="Filtrar itens da vitrine">
+            <button type="button" class="filtro-btn ativo" data-filtro="todos" role="tab" aria-selected="true">
+              ★ Tudo <span class="filtro-contagem" id="cont-todos">0</span>
+            </button>
+            <button type="button" class="filtro-btn" data-filtro="imagem" role="tab" aria-selected="false">
+              🖼 Imagens <span class="filtro-contagem" id="cont-imagem">0</span>
+            </button>
+            <button type="button" class="filtro-btn" data-filtro="video" role="tab" aria-selected="false">
+              🎬 Vídeos <span class="filtro-contagem" id="cont-video">0</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Grade responsiva de fotos e vídeos -->
+        <div id="vitrine-grade" class="vitrine-grade"></div>
+
+        <div class="navegacao-inferior-sala">
+          <button type="button" class="btn-acao-secundario" data-ir-sala="experiencia">
+            ← Sala 02: A Experiência
+          </button>
+          <button type="button" class="btn-acao-primario" data-ir-sala="lobby">
+            ⌂ Voltar ao Corredor das Portas
+          </button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ======================================================================
+       VISOR RETRÔ (LIGHTBOX RESPONSIVO PARA FOTOS E VÍDEOS)
+       ====================================================================== -->
+  <div
+    id="visor-midia"
+    class="visor-overlay"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="visor-titulo"
+    hidden
+  >
+    <div class="visor-janela">
+      <div class="janela-barra-topo visor-barra">
+        <div class="janela-bolinhas" aria-hidden="true">
+          <span class="bolinha b-vermelha"></span>
+          <span class="bolinha b-amarela"></span>
+          <span class="bolinha b-azul"></span>
+        </div>
+        <span id="visor-etiqueta" class="janela-titulo-os">VISOR_DO_PARQUE.EXE</span>
+        <button type="button" id="visor-fechar" class="visor-fechar-btn" aria-label="Fechar visor">
+          ✕
+        </button>
+      </div>
+
+      <div class="visor-palco">
+        <button type="button" id="visor-anterior" class="visor-seta visor-seta-esq" aria-label="Mídia anterior">
+          ‹
+        </button>
+
+        <div id="visor-conteudo" class="visor-conteudo"></div>
+
+        <button type="button" id="visor-proximo" class="visor-seta visor-seta-dir" aria-label="Próxima mídia">
+          ›
+        </button>
+      </div>
+
+      <div class="visor-rodape">
+        <div>
+          <h2 id="visor-titulo" class="visor-titulo"></h2>
+          <p id="visor-descricao" class="visor-descricao"></p>
+        </div>
+        <span id="visor-contador" class="visor-contador"></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts (sem frameworks, 100% JavaScript puro!) -->
+  <script src="conteudo.js"></script>
+  <script src="js/audio.js"></script>
+  <script src="js/cenarios.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
